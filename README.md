@@ -1,1 +1,819 @@
 # eduardd03.github.io
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>J Bros' Egg Inventory & Profit Optimizer</title>
+    <style>
+      /* BASE STYLES & VARIABLES */
+      :root {
+        --primary: #d97706;
+        --primary-light: #f59e0b;
+        --primary-bg: #fef3c7;
+        --bg-slate: #f8fafc;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
+        --border-color: #cbd5e1;
+        --card-bg: #ffffff;
+        --success: #166534;
+        --success-bg: #dcfce7;
+        --error: #991b1b;
+        --error-bg: #fee2e2;
+        --dark-card: #1e293b;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-slate);
+        font-family:
+          "Inter",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        color: var(--text-main);
+        line-height: 1.5;
+        padding: 1rem;
+      }
+
+      .container {
+        max-width: 1152px;
+        margin: 0 auto;
+      }
+
+      /* TYPOGRAPHY */
+      header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      h1 {
+        color: var(--primary-light);
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .subtitle {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-top: 0.25rem;
+      }
+
+      /* LAYOUT SYSTEM */
+      .main-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      /* CARDS */
+      .card {
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        height: 100%;
+      }
+
+      .card-title {
+        font-size: 1.125rem;
+        font-bold: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      /* INPUTS */
+      .input-stack {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .input-group label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.25rem;
+      }
+
+      .input-field {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        outline: none;
+        transition: border-color 0.2s;
+        font-size: 16px;
+      }
+
+      .input-field:focus {
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 2px var(--primary-bg);
+      }
+
+      /* TABLE STYLES */
+      .table-container {
+        overflow-x: auto;
+        margin: 0 -1rem;
+        padding: 0 1rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+        min-width: 500px;
+      }
+
+      th {
+        background: #f1f5f9;
+        color: #475569;
+        text-align: left;
+        padding: 0.5rem;
+        font-weight: 600;
+      }
+
+      td {
+        padding: 0.5rem;
+        border-bottom: 1px solid #f1f5f9;
+      }
+
+      .table-input {
+        width: 70px;
+        padding: 4px;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        text-align: right;
+        font-family: monospace;
+      }
+
+      /* SPECIAL SECTIONS */
+      .budget-box {
+        margin-top: 1rem;
+        padding: 0.75rem;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 8px;
+      }
+
+      .budget-label {
+        font-size: 0.75rem;
+        color: #92400e;
+      }
+
+      .budget-val {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #92400e;
+      }
+
+      .dark-panel {
+        background: var(--dark-card);
+        color: white;
+        border-radius: 12px;
+        padding: 1rem;
+      }
+
+      .mixed-header {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
+      .buy-price-control {
+        background: rgba(51, 65, 85, 0.5);
+        padding: 0.5rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: fit-content;
+      }
+
+      .mixed-stats-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+
+      .stat-card {
+        padding: 0.75rem;
+        background: rgba(51, 65, 85, 0.5);
+        border-radius: 8px;
+        border: 1px solid #334155;
+      }
+
+      .stat-card.highlight {
+        background: rgba(217, 119, 6, 0.1);
+        border-color: rgba(217, 119, 6, 0.3);
+      }
+
+      /* OPTIONS CARDS */
+      .options-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .option-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-top: 4px solid var(--border-color);
+      }
+
+      .option-card.featured {
+        border-top-color: var(--primary-light);
+      }
+
+      .net-profit-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.5rem;
+      }
+
+      .profit-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+
+      .profit-positive {
+        background: var(--success-bg);
+        color: var(--success);
+      }
+      .profit-negative {
+        background: var(--error-bg);
+        color: var(--error);
+      }
+
+      /* RESPONSIVE BREAKPOINTS */
+      @media (min-width: 640px) {
+        h1 {
+          font-size: 1.875rem;
+        }
+        .input-stack {
+          grid-template-columns: 1fr 1fr;
+        }
+        .mixed-stats-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .mixed-header {
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+        }
+      }
+
+      @media (min-width: 768px) {
+        body {
+          padding: 1.5rem;
+        }
+        .options-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .main-grid {
+          grid-template-columns: 350px 1fr;
+        }
+        .options-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .input-stack {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .hidden {
+        display: none;
+      }
+      .text-red {
+        color: var(--error);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>J Bros' Egg Inventory & Profit Optimizer</h1>
+        <p class="subtitle">Financial Dashboard and Strategic Analysis</p>
+      </header>
+
+      <div class="main-grid">
+        <!-- INPUT SIDEBAR -->
+        <div
+          class="sidebar"
+          style="display: flex; flex-direction: column; gap: 1.5rem"
+        >
+          <div class="card">
+            <h2 class="card-title"><span>⚙️</span> Capital & Expenses</h2>
+            <div class="input-stack">
+              <div class="input-group">
+                <label>Total Capital (₱)</label>
+                <input
+                  type="number"
+                  id="capital"
+                  value="70000"
+                  class="input-field"
+                  oninput="calculate()"
+                />
+              </div>
+              <div class="input-group">
+                <label>Operational Expense (₱)</label>
+                <input
+                  type="number"
+                  id="expense"
+                  value="5000"
+                  class="input-field"
+                  oninput="calculate()"
+                />
+              </div>
+              <div class="input-group">
+                <label>Damaged Goods / Loss (₱)</label>
+                <input
+                  type="number"
+                  id="damagedGoods"
+                  value="0"
+                  class="input-field"
+                  oninput="calculate()"
+                />
+              </div>
+              <div class="input-group">
+                <label>Retail Split (%)</label>
+                <input
+                  type="number"
+                  id="retailPercent"
+                  value="20"
+                  class="input-field"
+                  oninput="calculate()"
+                />
+              </div>
+            </div>
+            <div class="budget-box">
+              <p class="budget-label">Remaining Budget for Inventory:</p>
+              <p class="budget-val" id="inventoryBudget">₱65,000.00</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="card-title"><span>📦</span> Mixed Distribution</h2>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  font-size: 10px;
+                  font-weight: bold;
+                  color: #64748b;
+                  text-transform: uppercase;
+                "
+              >
+                <span>Size</span><span>Dist %</span>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  background: #f8fafc;
+                  padding: 0.5rem;
+                  border-radius: 6px;
+                "
+              >
+                <span style="font-size: 0.75rem; font-weight: 600">Small</span>
+                <input
+                  type="number"
+                  id="distS"
+                  value="5"
+                  class="table-input"
+                  style="width: 60px"
+                  oninput="calculate()"
+                />
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  background: #f8fafc;
+                  padding: 0.5rem;
+                  border-radius: 6px;
+                "
+              >
+                <span style="font-size: 0.75rem; font-weight: 600">Medium</span>
+                <input
+                  type="number"
+                  id="distM"
+                  value="10"
+                  class="table-input"
+                  style="width: 60px"
+                  oninput="calculate()"
+                />
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  background: #f8fafc;
+                  padding: 0.5rem;
+                  border-radius: 6px;
+                "
+              >
+                <span style="font-size: 0.75rem; font-weight: 600">Large</span>
+                <input
+                  type="number"
+                  id="distL"
+                  value="40"
+                  class="table-input"
+                  style="width: 60px"
+                  oninput="calculate()"
+                />
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  background: #f8fafc;
+                  padding: 0.5rem;
+                  border-radius: 6px;
+                "
+              >
+                <span style="font-size: 0.75rem; font-weight: 600"
+                  >X-Large</span
+                >
+                <input
+                  type="number"
+                  id="distXL"
+                  value="40"
+                  class="table-input"
+                  style="width: 60px"
+                  oninput="calculate()"
+                />
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  background: #f8fafc;
+                  padding: 0.5rem;
+                  border-radius: 6px;
+                "
+              >
+                <span style="font-size: 0.75rem; font-weight: 600">Jumbo</span>
+                <input
+                  type="number"
+                  id="distJ"
+                  value="5"
+                  class="table-input"
+                  style="width: 60px"
+                  oninput="calculate()"
+                />
+              </div>
+              <div
+                id="distError"
+                class="text-red hidden"
+                style="
+                  font-size: 11px;
+                  text-align: center;
+                  margin-top: 0.5rem;
+                  font-weight: bold;
+                "
+              >
+                ⚠️ Total must equal 100%
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTS AREA -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem">
+          <div class="card">
+            <div class="mixed-header">
+              <h2 style="font-size: 1.125rem; font-weight: 700">
+                Interactive Market Prices
+              </h2>
+              <span
+                style="
+                  font-size: 10px;
+                  color: #94a3b8;
+                  font-weight: bold;
+                  text-transform: uppercase;
+                  font-style: italic;
+                  background: #f8fafc;
+                  padding: 2px 6px;
+                  border-radius: 4px;
+                  border: 1px solid #e2e8f0;
+                "
+                >Edit table values</span
+              >
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Size</th>
+                    <th>Buy (₱)</th>
+                    <th>Retail (₱)</th>
+                    <th>Wholesale (₱)</th>
+                    <th>Net Margin</th>
+                  </tr>
+                </thead>
+                <tbody id="priceTable"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="dark-panel">
+            <div class="mixed-header">
+              <h2 style="font-size: 1.125rem; font-weight: 700">
+                The "Sorted Mixed" Advantage
+              </h2>
+              <div class="buy-price-control">
+                <span
+                  style="
+                    font-size: 10px;
+                    color: #94a3b8;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                  "
+                  >Buy Price ₱</span
+                >
+                <input
+                  type="number"
+                  id="mixedBuyPrice"
+                  value="205"
+                  style="
+                    background: transparent;
+                    color: #fbbf24;
+                    font-weight: bold;
+                    border: none;
+                    width: 60px;
+                    outline: none;
+                  "
+                  oninput="calculate()"
+                />
+              </div>
+            </div>
+            <div class="mixed-stats-grid">
+              <div class="stat-card">
+                <p
+                  style="
+                    font-size: 10px;
+                    text-transform: uppercase;
+                    font-weight: bold;
+                    color: #94a3b8;
+                    margin-bottom: 0.25rem;
+                  "
+                >
+                  Retail Value
+                </p>
+                <p
+                  style="font-size: 1.25rem; font-weight: 700; color: #fbbf24"
+                  id="mixedRetailVal"
+                >
+                  ₱0.00
+                </p>
+              </div>
+              <div class="stat-card">
+                <p
+                  style="
+                    font-size: 10px;
+                    text-transform: uppercase;
+                    font-weight: bold;
+                    color: #94a3b8;
+                    margin-bottom: 0.25rem;
+                  "
+                >
+                  Wholesale Value
+                </p>
+                <p
+                  style="font-size: 1.25rem; font-weight: 700; color: #fbbf24"
+                  id="mixedWholesaleVal"
+                >
+                  ₱0.00
+                </p>
+              </div>
+              <div class="stat-card highlight">
+                <p
+                  style="
+                    font-size: 10px;
+                    text-transform: uppercase;
+                    font-weight: bold;
+                    color: #fbbf24;
+                    margin-bottom: 0.25rem;
+                  "
+                >
+                  Blended Profit
+                </p>
+                <p
+                  style="font-size: 1.25rem; font-weight: 700; color: #4ade80"
+                  id="mixedBlendedProfit"
+                >
+                  ₱0.00
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div id="optionsContainer" class="options-grid"></div>
+        </div>
+      </div>
+
+      <footer
+        style="
+          margin-top: 3rem;
+          margin-bottom: 2rem;
+          text-align: center;
+          color: #94a3b8;
+          font-size: 0.75rem;
+        "
+      >
+        <p>
+          © 2024 J Bros' Egg Inventory & Profit Optimizer. Strategic Financial
+          Tool.
+        </p>
+      </footer>
+    </div>
+
+    <script>
+      let pricingData = {
+        S: { buy: 180, retail: 195, wholesale: 185 },
+        M: { buy: 190, retail: 205, wholesale: 200 },
+        L: { buy: 210, retail: 230, wholesale: 225 },
+        XL: { buy: 220, retail: 245, wholesale: 240 },
+        J: { buy: 240, retail: 265, wholesale: 260 },
+      };
+
+      function updatePricing(size, field, value) {
+        pricingData[size][field] = parseFloat(value) || 0;
+        calculate();
+      }
+
+      function calculate() {
+        const capital =
+          parseFloat(document.getElementById("capital").value) || 0;
+        const expense =
+          parseFloat(document.getElementById("expense").value) || 0;
+        const damages =
+          parseFloat(document.getElementById("damagedGoods").value) || 0;
+        const retSplit =
+          (parseFloat(document.getElementById("retailPercent").value) || 0) /
+          100;
+        const whoSplit = 1 - retSplit;
+        const budget = capital - expense;
+        const mixedBuyPrice =
+          parseFloat(document.getElementById("mixedBuyPrice").value) || 0;
+        const totalFixedCost = expense + damages;
+
+        document.getElementById("inventoryBudget").innerText =
+          `₱${budget.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
+
+        // Table Render
+        const priceTable = document.getElementById("priceTable");
+        let tableHTML = "";
+        Object.keys(pricingData).forEach((key) => {
+          const p = pricingData[key];
+          const retProf = p.retail - p.buy;
+          const whoProf = p.wholesale - p.buy;
+          tableHTML += `<tr>
+                    <td style="font-weight: 700; color: #334155">${key}</td>
+                    <td><input type="number" value="${p.buy}" class="table-input" oninput="updatePricing('${key}', 'buy', this.value)"></td>
+                    <td><input type="number" value="${p.retail}" class="table-input" oninput="updatePricing('${key}', 'retail', this.value)"></td>
+                    <td><input type="number" value="${p.wholesale}" class="table-input" oninput="updatePricing('${key}', 'wholesale', this.value)"></td>
+                    <td style="font-family: monospace; font-size: 10px; line-height: 1.2;">
+                        <span style="color: ${retProf >= 0 ? "#166534" : "#991b1b"}; font-weight: bold;">R: +${retProf}</span><br>
+                        <span style="color: ${whoProf >= 0 ? "#1e40af" : "#991b1b"}; font-weight: bold;">W: +${whoProf}</span>
+                    </td>
+                </tr>`;
+        });
+        priceTable.innerHTML = tableHTML;
+
+        // Distribution
+        const dist = {
+          S: (parseFloat(document.getElementById("distS").value) || 0) / 100,
+          M: (parseFloat(document.getElementById("distM").value) || 0) / 100,
+          L: (parseFloat(document.getElementById("distL").value) || 0) / 100,
+          XL: (parseFloat(document.getElementById("distXL").value) || 0) / 100,
+          J: (parseFloat(document.getElementById("distJ").value) || 0) / 100,
+        };
+        const totalDist = Object.values(dist).reduce((a, b) => a + b, 0);
+        document
+          .getElementById("distError")
+          .classList.toggle("hidden", Math.abs(totalDist - 1) < 0.001);
+
+        let sortedRetailVal = 0;
+        let sortedWholesaleVal = 0;
+        Object.keys(dist).forEach((key) => {
+          sortedRetailVal += dist[key] * pricingData[key].retail;
+          sortedWholesaleVal += dist[key] * pricingData[key].wholesale;
+        });
+
+        const blendedProfitMixed =
+          (sortedRetailVal - mixedBuyPrice) * retSplit +
+          (sortedWholesaleVal - mixedBuyPrice) * whoSplit;
+        document.getElementById("mixedRetailVal").innerText =
+          `₱${sortedRetailVal.toFixed(2)}`;
+        document.getElementById("mixedWholesaleVal").innerText =
+          `₱${sortedWholesaleVal.toFixed(2)}`;
+        document.getElementById("mixedBlendedProfit").innerText =
+          `₱${blendedProfitMixed.toFixed(2)}`;
+
+        // Strategies
+        const optionsContainer = document.getElementById("optionsContainer");
+        optionsContainer.innerHTML = "";
+
+        const strategies = [
+          {
+            title: "Sorted Mixed Specialist",
+            strategy: "100% Mixed trays buying and sorting strategy.",
+            calc: () => {
+              const qty = Math.floor(budget / mixedBuyPrice);
+              return { qty: `${qty} Mixed`, gross: qty * blendedProfitMixed };
+            },
+          },
+          {
+            title: "XL Hybrid Balance",
+            strategy: "60% Mixed / 40% XL individual trays for stability.",
+            calc: () => {
+              const mQty = Math.floor((budget * 0.6) / mixedBuyPrice);
+              const sQty = Math.floor((budget * 0.4) / pricingData.XL.buy);
+              const sMargin =
+                (pricingData.XL.retail - pricingData.XL.buy) * retSplit +
+                (pricingData.XL.wholesale - pricingData.XL.buy) * whoSplit;
+              return {
+                qty: `${mQty} Mix, ${sQty} XL`,
+                gross: mQty * blendedProfitMixed + sQty * sMargin,
+              };
+            },
+          },
+          {
+            title: "Large Volume Hybrid",
+            strategy: "60% Mixed / 40% Large for standard market flow.",
+            calc: () => {
+              const mQty = Math.floor((budget * 0.6) / mixedBuyPrice);
+              const sQty = Math.floor((budget * 0.4) / pricingData.L.buy);
+              const sMargin =
+                (pricingData.L.retail - pricingData.L.buy) * retSplit +
+                (pricingData.L.wholesale - pricingData.L.buy) * whoSplit;
+              return {
+                qty: `${mQty} Mix, ${sQty} L`,
+                gross: mQty * blendedProfitMixed + sQty * sMargin,
+              };
+            },
+          },
+        ];
+
+        strategies.forEach((opt, idx) => {
+          const res = opt.calc();
+          const net = res.gross - totalFixedCost;
+          const isPositive = net > 0;
+          optionsContainer.innerHTML += `
+                <div class="card option-card ${idx === 0 ? "featured" : ""}">
+                    <div>
+                        <h3 style="font-size: 0.875rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">#${idx + 1} ${opt.title}</h3>
+                        <p style="font-size: 11px; color: #64748b; line-height: 1.4; margin-bottom: 0.75rem;">${opt.strategy}</p>
+                        <div style="background: #f8fafc; padding: 0.5rem; border-radius: 6px; font-family: monospace; font-size: 10px; color: #475569; margin-bottom: 1rem;">
+                            <strong>INV:</strong> ${res.qty}
+                        </div>
+                    </div>
+                    <div style="border-top: 1px dashed #e2e8f0; padding-top: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase; margin-bottom: 0.25rem;">
+                            <span>Gross:</span>
+                            <span>₱${res.gross.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                        </div>
+                        <div class="net-profit-row">
+                            <span style="font-size: 11px; font-weight: bold; color: #334155;">NET:</span>
+                            <div style="text-align: right">
+                                <span class="profit-badge ${isPositive ? "profit-positive" : "profit-negative"}">
+                                    ₱${net.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                </span>
+                                ${damages > 0 ? `<p style="font-size: 8px; font-weight: 800; color: #ef4444; margin-top: 2px; text-transform: uppercase;">Incl. Damage</p>` : ""}
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+        });
+      }
+
+      window.onload = calculate;
+    </script>
+  </body>
+</html>
